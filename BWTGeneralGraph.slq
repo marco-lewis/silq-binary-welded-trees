@@ -1,0 +1,58 @@
+def mod(x:!N, a:!N)lifted{
+    b := x div a;
+    return x - (a * b);
+}
+
+// Depth - number of layers of each tree (at least 3)
+// Chain - list of nodes alternating between trees
+def G[n:!N, depth:!N](weld:!N^(2^depth), color:!N, a:uint[n])lifted:uint[n]{
+    // 0 - Red, 1 - Blue, 2 - Green, 3 - Yellow
+    // red := 0;
+    // green := 1;
+    // blue := 2;
+    // yellow := 3;
+
+
+    // Handling left tree
+    if (a == 1 && color == 0){
+        return 2:uint[n];
+    }
+    if (a == 1 && color == 1){
+        return 3:uint[n];
+    }
+
+    current_color := 2:!N;
+    for layer in [1..depth - 1){
+        c := floor(abs(layer)) coerce !N;
+        base_back_col := 2 * mod(c, 2);
+        for offset in [0..2^layer){
+            node := 2^(layer) + offset as !uint[n];
+            // Check top color
+            if (a == node && color == current_color){
+                return 2 * node;
+            }
+            // Check bottom color
+            if (a == node && color == current_color){
+                return 2 * node + 1;
+            }
+            // Check back color
+            back_col := base_back_col + mod(ceil(abs(offset)) coerce !N, 2);
+            if (a == node && color == back_col){
+                return node div 2;
+            }
+        }
+    }
+
+    // Handling weld
+
+    // Handling right tree
+    if (a == 17 && color == 0){
+        return 18:uint[n];
+    }
+    if (a == 17 && color == 1){
+        return 19:uint[n];
+    }
+
+    ones := vector(n, 1:!B) as !uint[n];
+    return ones;
+}
