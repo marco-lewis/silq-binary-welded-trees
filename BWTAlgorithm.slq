@@ -1,0 +1,65 @@
+import BWTGraph1;
+import BWTGraph2;
+import ColourOracle;
+import SimT;
+import utils;
+
+// Simulation of q. walk hamiltonian at a time t
+def Ham[n:!N, c:!N](const G_or: !N × uint[n] ->lifted uint[n], t:!R, a:uint[n]){
+  b := 0:uint[n];
+  r := 0:B;
+
+  for col in [0..c){
+    // Perform first V_c oracle
+    [b, r] := V[n](G_or, col, a, b, r);
+
+    // Simulation of T operation
+    [a, b, r] := sim_T[n](t, a, b, r);
+
+    // Perform second V_c oracle
+    [b, r] := V[n](G_or, col, a, b, r);
+  }
+  // UNSAFE
+  forget(b=0:uint[n]);
+  forget(r=0:B);
+
+  return a;
+}
+
+def run[n:!N](c:!N, const G_or: !N × uint[n] ->lifted uint[n], steps:!N, t:!R){
+  // Start a in the Entrance state
+  a := 1:uint[n];
+  for step in [0..steps){
+    a := Ham[n, c](G_or, t, a);
+  }
+  a := measure(a);
+  return a;
+}
+
+// Gets outputs much faster than Q#
+// Also produces output w/ higher prob
+def main(){
+  // bits = 2 * ciel(log N) - where N is # of vertices
+  t := 1/sqrt(2);
+
+  // Graph 1
+  c := 3:!N;
+  G := G1[6];
+  steps := 4;
+  
+  // Graph 2
+  // c := 4;
+  // G := G2[6];
+  // steps := 4;
+  
+  
+  results := vector(16, 0:!N);
+  for i in [0..30){
+    // res := run[6](c, G);
+    res:= run[6](c, G, steps, t);
+    
+    results[res] = results[res] + 1;
+    print(res);
+  }
+  return results;
+}

@@ -1,0 +1,48 @@
+// Controlled Hamiltonian simulation of Z-gate
+def cexp_z(const t:!R, const r:B, x:B):B{
+  if !r{
+    x := rotZ(t, x);
+  }
+  return x;
+}
+
+def cnot(const c:B, t:B)mfree:B{
+  if c{
+    t := X(t);
+  }
+  return t;
+}
+
+def cH(const c:B, t:B)mfree:B{
+  if c{
+    t := H(t);
+  }
+  return t;
+}
+
+// Toffolli gate with 1 control on 1st qubit 
+// and 0 control on 2nd control qubit
+def tof_on_off(const c1:B, const c2:B, t:B):B{
+    if c1 && !c2{
+        t := X(t);
+    }
+    return t;
+}
+
+// W gate for T simulation
+def W(a:B, b:B)mfree{
+  a := cnot(b, a);
+  b := cnot(a, b);
+  b := cH(a,b);
+  b := cnot(a, b);
+  a := cnot(b, a);
+  return (a, b);
+}
+
+// Bitwise XOR on a quantum uint
+def xor[n:!N](const a:uint[n], b:uint[n]){
+  for i in [0..n){
+    b[i] := cnot(a[i], b[i]);
+  }
+  return b;
+}

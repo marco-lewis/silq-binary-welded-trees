@@ -1,0 +1,19 @@
+import utils;
+
+// Perform the V_c oracle
+// XORs b with v_c(a) and xors r with f_c(a)
+def V[n:!N](
+    const G_or: !N × uint[n] ->lifted uint[n],
+    const col:!N,
+    const a:uint[n],
+    b:uint[n],
+    r:B): uint[n] × B
+{
+  vc := G_or(col, a);
+  b := xor[n](vc, b);
+
+  ones := vector(n, 1:!B) as !uint[n];
+  f := (vc == ones);
+  r := cnot(f,r);
+  return (b, r);
+}
