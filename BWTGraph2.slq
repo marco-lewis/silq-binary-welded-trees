@@ -1,0 +1,144 @@
+// 1-7, 9-15 edges
+// 0-3 col
+// 1 - Entrance, 9 - Exit
+// N=14, require 8 qubits
+def G2[n:!N](col:!N, a:uint[n])lifted:uint[n]{
+    // Entrance
+    if (a == 1 && col == 0){
+        return 2:uint[n];
+    }
+    if (a == 1 && col == 1){
+        return 3:uint[n];
+    }
+
+    if (a == 2 && col == 0){
+        return 1:uint[n];
+    }
+    if (a == 2 && col == 2){
+        return 4:uint[n];
+    }
+    if (a == 2 && col == 3){
+        return 5:uint[n];
+    }
+
+    if (a == 3 && col == 1){
+        return 1:uint[n];
+    }
+    if (a == 3 && col == 2){
+        return 6:uint[n];
+    }
+    if (a == 3 && col == 3){
+        return 7:uint[n];
+    }
+    
+    if (a == 4 && col == 2){
+        return 2:uint[n];
+    }
+    if (a == 4 && col == 0){
+        return 14:uint[n];
+    }
+    if (a == 4 && col == 1){
+        return 15:uint[n];
+    }
+
+    if (a == 5 && col == 3){
+        return 2:uint[n];
+    }
+    if (a == 5 && col == 0){
+        return 13:uint[n];
+    }
+    if (a == 5 && col == 1){
+        return 12:uint[n];
+    }
+
+    if (a == 6 && col == 2){
+        return 3:uint[n];
+    }
+    if (a == 6 && col == 0){
+        return 15:uint[n];
+    }
+    if (a == 6 && col == 1){
+        return 13:uint[n];
+    }
+
+    if (a == 7 && col == 3){
+        return 3:uint[n];
+    }
+    if (a == 7 && col == 0){
+        return 12:uint[n];
+    }
+    if (a == 7 && col == 1){
+        return 14:uint[n];
+    }
+
+    // Exit
+    if (a == 9 && col == 0){
+        return 10:uint[n];
+    }
+    if (a == 9 && col == 1){
+        return 11:uint[n];
+    }
+
+    if (a == 10 && col == 0){
+        return 9:uint[n];
+    }
+    if (a == 10 && col == 2){
+        return 12:uint[n];
+    }
+    if (a == 10 && col == 3){
+        return 13:uint[n];
+    }
+
+    if (a == 11 && col == 1){
+        return 9:uint[n];
+    }
+    if (a == 11 && col == 2){
+        return 14:uint[n];
+    }
+    if (a == 11 && col == 3){
+        return 15:uint[n];
+    }
+
+    if (a == 12 && col == 2){
+        return 10:uint[n];
+    }
+    if (a == 12 && col == 0){
+        return 7:uint[n];
+    }
+    if (a == 12 && col == 1){
+        return 5:uint[n];
+    }
+
+    if (a == 13 && col == 3){
+        return 10:uint[n];
+    }
+    if (a == 13 && col == 0){
+        return 5:uint[n];
+    }
+    if (a == 13 && col == 1){
+        return 6:uint[n];
+    }
+
+    if (a == 14 && col == 2){
+        return 11:uint[n];
+    }
+    if (a == 14 && col == 0){
+        return 4:uint[n];
+    }
+    if (a == 14 && col == 1){
+        return 7:uint[n];
+    }
+
+    if (a == 15 && col == 3){
+        return 11:uint[n];
+    }
+    if (a == 15 && col == 0){
+        return 6:uint[n];
+    }
+    if (a == 15 && col == 1){
+        return 4:uint[n];
+    }
+
+    ones := vector(n, 1:!B) as uint[n];
+    return ones;
+}
