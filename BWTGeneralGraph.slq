@@ -5,7 +5,7 @@ def mod(x:!N, a:!N)lifted{
 
 // Depth - number of layers of each tree (at least 3)
 // Chain - list of nodes alternating between trees
-def G[n:!N, depth:!N](weld:!N^(2^depth), color:!N, a:uint[n])lifted:uint[n]{
+def G[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifted:uint[n]{
     // 0 - Red, 1 - Blue, 2 - Green, 3 - Yellow
     // red := 0;
     // green := 1;
@@ -21,36 +21,107 @@ def G[n:!N, depth:!N](weld:!N^(2^depth), color:!N, a:uint[n])lifted:uint[n]{
         return 3:uint[n];
     }
 
-    current_color := 2:!N;
+    col_by := true:!B;
     for layer in [1..depth - 1){
-        c := floor(abs(layer)) coerce !N;
-        base_back_col := 2 * mod(c, 2);
-        for offset in [0..2^layer){
-            node := 2^(layer) + offset as !uint[n];
+        // c := floor(abs(layer)) coerce !N;
+        // base_back_col := 2 * mod(c, 2);
+
+        offset_num := floor(2^(layer)) as !uint[n];
+
+        for offset in [0..offset_num as !N){
             // Check top color
+            node := 1 + offset_num + offset as uint[n];
+            current_color := [0:!B, col_by] coerce !uint[2];
             if (a == node && color == current_color){
                 return 2 * node;
             }
+
             // Check bottom color
+            node := offset_num + offset as uint[n];
+            current_color = [1:!B, col_by] coerce !uint[2];
             if (a == node && color == current_color){
                 return 2 * node + 1;
             }
+
             // Check back color
-            back_col := base_back_col + mod(ceil(abs(offset)) coerce !N, 2);
-            if (a == node && color == back_col){
+            // back_col := base_back_col + mod(ceil(abs(offset)) coerce !N, 2);
+            node := offset_num + offset as uint[n];
+            back_col := mod(ceil(abs(offset)) coerce !N, 2) coerce !B;
+            current_color = [back_col, X(col_by)] coerce !uint[2];
+            if (a == node && color == current_color){
                 return node div 2;
             }
         }
+        col_by = X(col_by);
     }
 
     // Handling weld
+    left_side := true :!B;
+    if weld[0] > 2^depth { left_side = X(left_side); }
+    
+    for weld_idx in [0..2^depth){
+        if weld_idx == (2^depth - 1) { next_num := 0:!N; }
+        else { next_num := weld_idx + 1; }
+        if weld_idx == 0 { prev_num := 2^depth - 1; }
+        else { prev_num := weld_idx - 1; }
+        
+        node := weld[weld_idx];
+        current_color := [left_side, col_by] coerce !uint[2];
+        if (a == node && color == current_color){
+            return weld[next_num] as uint[n];
+        }
+
+        current_color = [X(left_side), col_by] coerce !uint[2];
+        if (a == node && color == current_color){
+            return weld[prev_num] as uint[n];
+        }
+
+        back_col := mod(node coerce !N, 2) coerce !B;
+        current_color = [back_col, X(col_by)] coerce !uint[2];
+        if (a == node && color == current_color){
+            // Needs fixing
+            return node div 2 as uint[n];
+        }
+    }
+
 
     // Handling right tree
-    if (a == 17 && color == 0){
-        return 18:uint[n];
+    r_start := 2^(depth) + 1 coerce !uint[n];
+    if (a == r_start && color == 0){
+        return r_start + 1:uint[n];
     }
-    if (a == 17 && color == 1){
-        return 19:uint[n];
+    if (a == 2^depth && color == 1){
+        return r_start + 2:uint[n];
+    }
+
+    col_by = true:!B;
+    for layer in [1..depth - 1){
+        offset_num := floor(2^(layer)) as !uint[n];
+
+        for offset in [0..offset_num as !N){
+            // Check top color
+            node := r_start + offset_num + offset as uint[n];
+            current_color := [0:!B, col_by] coerce !uint[2];
+            if (a == node && color == current_color){
+                return node + offset_num + offset;
+            }
+
+            // Check bottom color
+            node := r_start + offset_num + offset as uint[n];
+            current_color = [1:!B, col_by] coerce !uint[2];
+            if (a == node && color == current_color){
+                return node + offset_num + offset + 1;
+            }
+
+            // Check back color
+            node := r_start + offset_num + offset as uint[n];
+            back_col := mod(ceil(abs(offset)) coerce !N, 2) coerce !B;
+            current_color = [back_col, X(col_by)] coerce !uint[2];
+            if (a == node && color == current_color){
+                return node - offset - (offset_num + offset + 1 div 2);
+            }
+        }
+        col_by = X(col_by);
     }
 
     ones := vector(n, 1:!B) as !uint[n];
