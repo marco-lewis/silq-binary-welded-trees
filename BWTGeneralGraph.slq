@@ -4,7 +4,7 @@ def mod(x:!N, a:!N)lifted{
 }
 
 // Depth - number of layers of each tree (at least 3)
-// Chain - list of nodes alternating between trees
+// Weld - list of nodes alternating between trees
 def G[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifted:uint[n]{
     // 0 - Red, 1 - Blue, 2 - Green, 3 - Yellow
     // red := 0;
@@ -82,11 +82,12 @@ def G[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifted:uint[n
             // Needs fixing
             return node div 2 as uint[n];
         }
+        left_side = X(left_side);
     }
 
 
     // Handling right tree
-    r_start := 2^(depth) + 1 coerce !uint[n];
+    r_start := 2^(depth) coerce !uint[n];
     if (a == r_start && color == 0){
         return r_start + 1:uint[n];
     }
@@ -118,7 +119,7 @@ def G[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifted:uint[n
             back_col := mod(ceil(abs(offset)) coerce !N, 2) coerce !B;
             current_color = [back_col, X(col_by)] coerce !uint[2];
             if (a == node && color == current_color){
-                return node - offset - (offset_num + offset + 1 div 2);
+                return node - offset - (offset_num + offset div 2);
             }
         }
         col_by = X(col_by);
