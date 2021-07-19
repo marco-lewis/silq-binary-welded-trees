@@ -4,11 +4,10 @@ n := 4;
 def main(){
     weld := [4,13,6,14,5,11,7,12] coerce !uint[n]^(2^3);
     out := array(15, array(4, 0:!uint[n]));
-    // y := G[6, 3](weld, 2, 1:uint[6]);
     for a in [1..15){
         for col in [0..4){
             nd := a as uint[n];
-            x := G[n, 3](weld, col, nd);
+            x := BWTOracle[n, 3](weld, col, nd);
             out[a][col] = measure(x);
             print(a);
         }

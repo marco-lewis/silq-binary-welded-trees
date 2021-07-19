@@ -2,20 +2,26 @@ import utils;
 
 // Simulation of T matrix
 // Requires tidying up and return of multiple qubits
-def sim_T[n:!N](const t:!R, a:uint[n], b:uint[n], r:B){
+def sim_T[n:!N](
+    const t:!R, 
+    node_reg:uint[n], 
+    neighbour_anc:uint[n], 
+    err_anc:B)
+  {
   anc := 0:B;
   for i in [0..n){
-    [a[i], b[i]] := W(a[i], b[i]);
-    anc := tof_on_off(a[i], b[i], anc);
+    [node_reg[i], neighbour_anc[i]] := W(node_reg[i], neighbour_anc[i]);
+    anc := tof_on_off(node_reg[i], neighbour_anc[i], anc);
   }
   
-  anc := cexp_z(t, r, anc);
+  anc := cexp_z(t, err_anc, anc);
 
   for j in [0..n){
     i := n - (j + 1);
-    anc := tof_on_off(a[i], b[i], anc);
-    [a[i], b[i]] := W(a[i], b[i]);
+    anc := tof_on_off(node_reg[i], neighbour_anc[i], anc);
+    [node_reg[i], neighbour_anc[i]] := W(node_reg[i], neighbour_anc[i]);
   }
+  
   forget(anc=0:B);
-  return (a, b, r);
+  return (node_reg, neighbour_anc, err_anc);
 }
