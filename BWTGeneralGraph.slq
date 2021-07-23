@@ -39,7 +39,7 @@ def BWTOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifte
             back_col := (mod(offset, 2) coerce !B);
             current_color = [back_col, X(col_by)] coerce !uint[2];
             if (a == node && color == current_color){
-                out = (node - 1 - offset - offset div 2);
+                out = (node - offset - (offset_num div 2) + (offset div 2));
             }
         }
         col_by = X(col_by);
@@ -56,7 +56,7 @@ def BWTOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifte
         else { prev_num := weld_idx - 1; }
         
         // Find first weld node
-        weld_node := weld[weld_idx]:!uint[n];
+        weld_node := weld[weld_idx]:uint[n];
         current_color := [left_side, col_by] coerce !uint[2];
         if (a == weld_node && color == current_color){
             out = (weld[next_num] as uint[n]);
@@ -69,15 +69,15 @@ def BWTOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifte
         }
 
         // Find node on tree attached to leaf
-        back_col := X(weld_node[0]) ⊕ left_side;
+        back_col := X(weld[weld_idx][0]) ⊕ left_side;
         current_color = [back_col, X(col_by)] coerce !uint[2];
         if (a == weld_node && color == current_color){
             if left_side{
                 out = (weld_node div 2 as uint[n]);
             }
             else {
-                offset := (weld_node as !N) + 2 - 2^(depth) - floor(2^(depth-1));
-                out = (weld_node - 2 - offset div 2 as uint[n]);
+                offset := weld_node - 2^(depth) - ((2^(depth) div 2) - 1);
+                out = weld_node - offset + (offset div 2) - (2^(depth - 1) div 2);
             }
         }
         left_side = X(left_side);
@@ -114,7 +114,7 @@ def BWTOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifte
             back_col := (mod(offset, 2) coerce !B);
             current_color = [back_col, X(col_by)] coerce !uint[2];
             if (a == node && color == current_color){
-                out = (node - 1 - offset - offset div 2);
+                out = (node - ((offset + 1) div 2) - (offset_num div 2));
             }
         }
         col_by = X(col_by);

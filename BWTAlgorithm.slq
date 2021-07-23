@@ -13,7 +13,6 @@ def Ham[n:!N](const G_or: !N × uint[n] ->lifted uint[n], t:!R, node_reg:uint[n]
   err_anc := 0:B;
 
   for col in [0..numOfCols){
-    print(col);
     // Perform first V_c oracle
     [neighbour_anc, err_anc] := V[n](G_or, col, node_reg, neighbour_anc, err_anc);
 
@@ -50,16 +49,19 @@ def main(){
 
   // Graph 1
   // G := G1[6];
-  G := λ(color:!N, const node:uint[6])qfree.{return BWTOracle[6, 2]([2,5,3,6] coerce !uint[6]^(2 ^ 2), color, node);};
-  steps := 4;
+  // G := λ(color:!N, const node:uint[6])qfree.{return BWTOracle[6, 2]([2,5,3,6] coerce !uint[6]^(2 ^ 2), color, node);};
+  // steps := 4;
   
   // Graph 2
   // G := G2[6];
   // G := λ(color:!N, const node:uint[6])qfree.{return BWTOracle[6, 3]([4,12,6,14,5,11,7,13] coerce !uint[6]^(2 ^ 3), color, node);};
   // steps := 6;
   
+  //Graph 3
+  G := λ(color:!N, const node:uint[6])qfree.{return BWTOracle[6, 4]([8,25,10,30,12,24,15,27,11,26,13,23,14,28,9,29] coerce !uint[6]^(2 ^ 4), color, node);};
+  steps := 8;
   
-  results := vector(16, 0:!N);
+  results := vector(2^6, 0:!N);
   for i in [0..1){
     res:= run[6](G, steps, t);
     

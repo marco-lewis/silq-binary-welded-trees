@@ -8,7 +8,7 @@ def V[n:!N](
     const node_reg:uint[n],
     neighbour_anc:uint[n],
     err_anc:B): uint[n] × B
-{
+{    
   vc := G_or(col, node_reg);
   neighbour_anc := xor[n](vc, neighbour_anc);
 
