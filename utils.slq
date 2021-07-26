@@ -13,6 +13,7 @@ def cnot(const c:B, t:B)mfree:B{
   return t;
 }
 
+// Controlled-hadamard
 def cH(const c:B, t:B)mfree:B{
   if c{
     t := H(t);
@@ -45,4 +46,10 @@ def xor[n:!N](const a:uint[n], b:uint[n]){
     b[i] := cnot(a[i], b[i]);
   }
   return b;
+}
+
+// Modular
+def mod(x:!N, a:!N)lifted{
+    b := x div a;
+    return x - (a * b);
 }

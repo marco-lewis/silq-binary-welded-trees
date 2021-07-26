@@ -1,7 +1,4 @@
-def mod(x:!N, a:!N)lifted{
-    b := x div a;
-    return x - (a * b);
-}
+import utils;
 
 // Depth - number of layers of each tree (at least 3)
 // Weld - list of nodes alternating between trees
