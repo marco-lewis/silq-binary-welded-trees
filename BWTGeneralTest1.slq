@@ -1,9 +1,0 @@
-import BWTGeneralGraph;
-
-def main(){
-    a := 6 :uint[3];
-    col := 1 :!N;
-    weld := [2,6,3,5] coerce !uint[3]^(2^2);
-    x := BWTOracle[3, 2](weld, col, a);
-    return x;
-}

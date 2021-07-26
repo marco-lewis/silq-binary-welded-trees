@@ -1,0 +1,33 @@
+import BWTAlgorithm;
+import BWTGeneralGraph;
+
+depth := 4;
+// bits := 2*(depth+1);
+bits := 6;
+
+// Gets outputs much faster than Q#
+// Also produces output w/ higher prob
+def main(){
+  t := 1/sqrt(2);
+
+//   Graph 1
+//   G := λ(color:!N, const node:uint[n])qfree.{return BWTOracle[n, d]([2,5,3,6] coerce !uint[n]^(2 ^ d), color, node);};
+//   steps := 4;
+  
+//   Graph 2
+//   G := λ(color:!N, const node:uint[n])qfree.{return BWTOracle[n, d]([4,12,6,14,5,11,7,13] coerce !uint[n]^(2 ^ d), color, node);};
+//   steps := 6;
+  
+  //Graph 3
+  G := λ(color:!N, const node:uint[bits])qfree.{return BWTOracle[bits, depth]([8,25,10,30,12,24,15,27,11,26,13,23,14,28,9,29] coerce !uint[bits]^(2 ^ depth), color, node);};
+  steps := 8;
+  
+  results := vector(2^bits, 0:!N);
+  for i in [0..1){
+    res:= BWT[bits](G, steps, t, true);
+    
+    results[res] = results[res] + 1;
+    print(res);
+  }
+  return results;
+}
