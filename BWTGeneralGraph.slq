@@ -6,35 +6,15 @@ def mod(x:!N, a:!N)lifted{
 // Depth - number of layers of each tree (at least 3)
 // Weld - list of nodes alternating between trees
 // Colors: 0 - Red, 1 - Green, 2 - Blue, 3 - Yellow
-def G[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifted:uint[n]{
+def BWTOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, a:uint[n])lifted:uint[n]{
+    out := vector(n, 1:B) as uint[n];
     // Left tree oracle
-    out := TreeOracle[n, depth](1 as uint[n], color, a);
-    if !(out[1]){
-        return out[0];
-    }
-
-    // Weld oracle
-    out = WeldOracle[n, depth](weld, color, a);
-    if !(out[1]){
-        return out[0];
-    }
-
-    // Right tree oracle
-    out = TreeOracle[n, depth](2^(depth) as uint[n], color, a);
-    if !(out[1]){
-        return out[0];
-    }
-
-    ones := vector(n, 1:!B) as !uint[n];
-    return ones;
-}
-
-def TreeOracle[n:!N, depth:!N](root:uint[n], color:!N, const a: uint[n])lifted:uint[n]×!B{
+    root := 1:!uint[n];
     if (a == root && color == 0){
-        return (root + 1:uint[n], false);
+        out = root + 1:uint[n];
     }
     if (a == root && color == 1){
-        return (root + 2:uint[n], false);
+        out = (root + 2:uint[n]);
     }
 
     col_by := true:!B;
@@ -46,14 +26,128 @@ def TreeOracle[n:!N, depth:!N](root:uint[n], color:!N, const a: uint[n])lifted:u
             node := root + offset_num - 1 + offset as uint[n];
             current_color := [0:!B, col_by] coerce !uint[2];
             if (a == node && color == current_color){
-                return (node + offset_num + offset, false);
+                out = (node + offset_num + offset);
+            }
+
+            // Check bottom color
+            current_color = [1:!B, col_by] coerce !uint[2];
+            if (a == node && color == current_color){
+                out = (node + offset_num + offset + 1);
+            }
+
+            // Check back color
+            back_col := (mod(offset, 2) coerce !B);
+            current_color = [back_col, X(col_by)] coerce !uint[2];
+            if (a == node && color == current_color){
+                out = (node - offset - (offset_num div 2) + (offset div 2));
+            }
+        }
+        col_by = X(col_by);
+    }
+
+    // Weld oracle
+    left_side := weld[0] <= 2^depth :!B;
+
+    col_by = mod(depth, 2) == 0;
+    for weld_idx in [0..2^depth){
+        if weld_idx == (2^depth - 1) { next_num := 0; }
+        else { next_num := weld_idx + 1; }
+        if weld_idx == 0 { prev_num := 2^depth - 1; }
+        else { prev_num := weld_idx - 1; }
+        
+        // Find first weld node
+        weld_node := weld[weld_idx]:uint[n];
+        current_color := [left_side, col_by] coerce !uint[2];
+        if (a == weld_node && color == current_color){
+            out = (weld[next_num] as uint[n]);
+        }
+
+        // Find second weld node
+        current_color = [X(left_side), col_by] coerce !uint[2];
+        if (a == weld_node && color == current_color){
+            out = (weld[prev_num] as uint[n]);
+        }
+
+        // Find node on tree attached to leaf
+        back_col := X(weld[weld_idx][0]) ⊕ left_side;
+        current_color = [back_col, X(col_by)] coerce !uint[2];
+        if (a == weld_node && color == current_color){
+            if left_side{
+                out = (weld_node div 2 as uint[n]);
+            }
+            else {
+                offset := weld_node - 2^(depth) - ((2^(depth) div 2) - 1);
+                out = weld_node - offset + (offset div 2) - (2^(depth - 1) div 2);
+            }
+        }
+        left_side = X(left_side);
+    }
+
+    // Right tree oracle
+    root = 2^depth as !uint[n];
+    if (a == root && color == 0){
+        out = root + 1:uint[n];
+    }
+    if (a == root && color == 1){
+        out = (root + 2:uint[n]);
+    }
+
+    col_by = true:!B;
+    for layer in [1..depth - 1){
+        offset_num := floor(2^(layer)) as !uint[n];
+
+        for offset in [0..offset_num as !N){
+            // Check top color
+            node := root + offset_num - 1 + offset as uint[n];
+            current_color := [0:!B, col_by] coerce !uint[2];
+            if (a == node && color == current_color){
+                out = (node + offset_num + offset);
+            }
+
+            // Check bottom color
+            current_color = [1:!B, col_by] coerce !uint[2];
+            if (a == node && color == current_color){
+                out = (node + offset_num + offset + 1);
+            }
+
+            // Check back color
+            back_col := (mod(offset, 2) coerce !B);
+            current_color = [back_col, X(col_by)] coerce !uint[2];
+            if (a == node && color == current_color){
+                out = (node - ((offset + 1) div 2) - (offset_num div 2));
+            }
+        }
+        col_by = X(col_by);
+    }
+
+    return out;
+}
+
+def TreeOracle[n:!N, depth:!N](const root:!uint[n], color:!N, const a: uint[n], out:uint[n])lifted:uint[n]{
+    if (a == root && color == 0){
+        return root + 1:uint[n];
+    }
+    if (a == root && color == 1){
+        return (root + 2:uint[n]);
+    }
+
+    col_by := true:!B;
+    for layer in [1..depth - 1){
+        offset_num := floor(2^(layer)) as !uint[n];
+
+        for offset in [0..offset_num as !N){
+            // Check top color
+            node := root + offset_num - 1 + offset as uint[n];
+            current_color := [0:!B, col_by] coerce !uint[2];
+            if (a == node && color == current_color){
+                return (node + offset_num + offset);
             }
 
             // Check bottom color
             node := root + offset_num - 1 + offset as uint[n];
             current_color = [1:!B, col_by] coerce !uint[2];
             if (a == node && color == current_color){
-                return (node + offset_num + offset + 1, false);
+                return (node + offset_num + offset + 1);
             }
 
             // Check back color
@@ -61,21 +155,21 @@ def TreeOracle[n:!N, depth:!N](root:uint[n], color:!N, const a: uint[n])lifted:u
             back_col := (mod(offset, 2) coerce !B);
             current_color = [back_col, X(col_by)] coerce !uint[2];
             if (a == node && color == current_color){
-                return (node - 1 - offset - offset div 2, false);
+                return (node - 1 - offset - offset div 2);
             }
         }
         col_by = X(col_by);
     }
-    return (0:uint[n], true);
+
+    return out;
 }
 
-def WeldOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, const a: uint[n])lifted:uint[n]×!B{
-    left_side := true :!B;
-    if weld[0] > 2^depth { left_side = X(left_side); }
+def WeldOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, const a: uint[n], out:uint[n])lifted:uint[n]{
+    left_side := weld[0] <= 2^depth :!B;
 
-    col_by := mod(depth, 2) == 1;
+    col_by := mod(depth, 2) == 0;
     for weld_idx in [0..2^depth){
-        if weld_idx == (2^depth - 1) { next_num := 0:!N; }
+        if weld_idx == (2^depth - 1) { next_num := 0; }
         else { next_num := weld_idx + 1; }
         if weld_idx == 0 { prev_num := 2^depth - 1; }
         else { prev_num := weld_idx - 1; }
@@ -84,13 +178,13 @@ def WeldOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, const a: uint[
         weld_node := weld[weld_idx]:!uint[n];
         current_color := [left_side, col_by] coerce !uint[2];
         if (a == weld_node && color == current_color){
-            return (weld[next_num] as uint[n], false);
+            return (weld[next_num] as uint[n]);
         }
 
         // Find second weld node
         current_color = [X(left_side), col_by] coerce !uint[2];
         if (a == weld_node && color == current_color){
-            return (weld[prev_num] as uint[n], false);
+            return (weld[prev_num] as uint[n]);
         }
 
         // Find node on tree attached to leaf
@@ -98,15 +192,15 @@ def WeldOracle[n:!N, depth:!N](weld:!uint[n]^(2^depth), color:!N, const a: uint[
         current_color = [back_col, X(col_by)] coerce !uint[2];
         if (a == weld_node && color == current_color){
             if left_side{
-                return (weld_node div 2 as uint[n], false);
+                return (weld_node div 2 as uint[n]);
             }
             else {
                 offset := (weld_node as !N) + 2 - 2^(depth) - floor(2^(depth-1));
-                return (weld_node - 2 - offset div 2 as uint[n], false);
+                return (weld_node - 2 - offset div 2 as uint[n]);
             }
         }
         left_side = X(left_side);
     }
 
-    return (0:uint[n], true);
+    return out;
 }

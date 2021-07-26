@@ -1,0 +1,15 @@
+import BWTGeneralGraph;
+
+n := 6;
+def main(){
+    weld := [8,25,10,30,12,24,15,27,11,26,13,23,14,28,9,29] coerce !uint[n]^(2 ^ 4);
+    out := array(32, array(4, 0:!uint[n]));
+    for a in [1..32){
+        for col in [0..4){
+            nd := a as uint[n];
+            x := BWTOracle[n, 4](weld, col, nd);
+            out[a][col] = measure(x);
+        }
+    }
+    return out;
+}

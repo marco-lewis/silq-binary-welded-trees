@@ -1,39 +1,44 @@
 import BWTGraph1;
 import BWTGraph2;
 import ColourOracle;
+import BWTGeneralGraph;
 import SimT;
 import utils;
 
-// Simulation of q. walk hamiltonian at a time t
-def Ham[n:!N, c:!N](const G_or: !N × uint[n] ->lifted uint[n], t:!R, a:uint[n]){
-  b := 0:uint[n];
-  r := 0:B;
+numOfCols := 4;
 
-  for col in [0..c){
+// Simulation of q. walk hamiltonian at a time t
+def Ham[n:!N](const G_or: !N × uint[n] ->lifted uint[n], t:!R, node_reg:uint[n]){
+  neighbour_anc := 0:uint[n];
+  err_anc := 0:B;
+
+  for col in [0..numOfCols){
     // Perform first V_c oracle
-    [b, r] := V[n](G_or, col, a, b, r);
+    [neighbour_anc, err_anc] := V[n](G_or, col, node_reg, neighbour_anc, err_anc);
 
     // Simulation of T operation
-    [a, b, r] := sim_T[n](t, a, b, r);
+    [node_reg, neighbour_anc, err_anc] := sim_T[n](t, node_reg, neighbour_anc, err_anc);
 
     // Perform second V_c oracle
-    [b, r] := V[n](G_or, col, a, b, r);
+    [neighbour_anc, err_anc] := V[n](G_or, col, node_reg, neighbour_anc, err_anc);
   }
   // UNSAFE
-  forget(b=0:uint[n]);
-  forget(r=0:B);
+  forget(neighbour_anc=0:uint[n]);
+  forget(err_anc=0:B);
 
-  return a;
+  return node_reg;
 }
 
-def run[n:!N](c:!N, const G_or: !N × uint[n] ->lifted uint[n], steps:!N, t:!R){
+def run[n:!N](const G_or: !N × uint[n] ->lifted uint[n], steps:!N, t:!R){
   // Start a in the Entrance state
-  a := 1:uint[n];
+  node_reg := 1:uint[n];
   for step in [0..steps){
-    a := Ham[n, c](G_or, t, a);
+    print(step);
+    node_reg := Ham[n](G_or, t, node_reg);
   }
-  a := measure(a);
-  return a;
+  dump();
+  node_reg := measure(node_reg);
+  return node_reg;
 }
 
 // Gets outputs much faster than Q#
@@ -43,20 +48,22 @@ def main(){
   t := 1/sqrt(2);
 
   // Graph 1
-  c := 3:!N;
-  G := G1[6];
-  steps := 4;
-  
-  // Graph 2
-  // c := 4;
-  // G := G2[6];
+  // G := G1[6];
+  // G := λ(color:!N, const node:uint[6])qfree.{return BWTOracle[6, 2]([2,5,3,6] coerce !uint[6]^(2 ^ 2), color, node);};
   // steps := 4;
   
+  // Graph 2
+  // G := G2[6];
+  // G := λ(color:!N, const node:uint[6])qfree.{return BWTOracle[6, 3]([4,12,6,14,5,11,7,13] coerce !uint[6]^(2 ^ 3), color, node);};
+  // steps := 6;
   
-  results := vector(16, 0:!N);
-  for i in [0..30){
-    // res := run[6](c, G);
-    res:= run[6](c, G, steps, t);
+  //Graph 3
+  G := λ(color:!N, const node:uint[6])qfree.{return BWTOracle[6, 4]([8,25,10,30,12,24,15,27,11,26,13,23,14,28,9,29] coerce !uint[6]^(2 ^ 4), color, node);};
+  steps := 8;
+  
+  results := vector(2^6, 0:!N);
+  for i in [0..1){
+    res:= run[6](G, steps, t);
     
     results[res] = results[res] + 1;
     print(res);

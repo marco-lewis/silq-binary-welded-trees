@@ -5,15 +5,15 @@ import utils;
 def V[n:!N](
     const G_or: !N × uint[n] ->lifted uint[n],
     const col:!N,
-    const a:uint[n],
-    b:uint[n],
-    r:B): uint[n] × B
-{
-  vc := G_or(col, a);
-  b := xor[n](vc, b);
+    const node_reg:uint[n],
+    neighbour_anc:uint[n],
+    err_anc:B): uint[n] × B
+{    
+  vc := G_or(col, node_reg);
+  neighbour_anc := xor[n](vc, neighbour_anc);
 
   ones := vector(n, 1:!B) as !uint[n];
   f := (vc == ones);
-  r := cnot(f,r);
-  return (b, r);
+  err_anc := cnot(f,err_anc);
+  return (neighbour_anc, err_anc);
 }
