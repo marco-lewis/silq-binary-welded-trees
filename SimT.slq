@@ -9,13 +9,17 @@ def sim_T[n:!N](
     err_anc:B)
   {
   anc := 0:B;
+
+  // Entangle SWAP state
   for i in [0..n){
     [node_reg[i], neighbour_anc[i]] := W(node_reg[i], neighbour_anc[i]);
     anc := tof_on_off(node_reg[i], neighbour_anc[i], anc);
   }
   
+  // Perform simulation
   anc := cexp_z(t, err_anc, anc);
 
+  // Undo entangled SWAP
   for j in [0..n){
     i := n - (j + 1);
     anc := tof_on_off(node_reg[i], neighbour_anc[i], anc);
