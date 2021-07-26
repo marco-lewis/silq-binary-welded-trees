@@ -20,6 +20,8 @@ Note that the weld is a list that requires:
 3. Numbers must alternate between each range (but the first number can be from either)
 
 ## Resources
+This implementation is partly based off the Quipper implementation available [here](https://www.mathstat.dal.ca/~selinger/quipper/doc/Quipper-Algorithms-BWT-Main.html).
+
 See the Silq homepage ([https://silq.ethz.ch/](https://silq.ethz.ch/)) or [Github](https://github.com/eth-sri/silq) for information on Silq.
 
 For details of the algorithm, see:
