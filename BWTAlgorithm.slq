@@ -5,10 +5,13 @@ import utils;
 numOfCols := 4;
 
 // Simulation of q. walk hamiltonian at a time t
-def Ham[n:!N](const G_or: !N × uint[n] ->lifted uint[n], t:!R, node_reg:uint[n]){
-  neighbour_anc := 0:uint[n];
-  err_anc := 0:B;
-
+def Ham[n:!N](
+  const G_or: !N × uint[n]->lifted uint[n],
+  t:!R,
+  node_reg:uint[n],
+  neighbour_anc:uint[n],
+  err_anc:B){
+  
   for col in [0..numOfCols){
     // Perform first V_c oracle
     [neighbour_anc, err_anc] := V[n](G_or, col, node_reg, neighbour_anc, err_anc);
@@ -19,21 +22,20 @@ def Ham[n:!N](const G_or: !N × uint[n] ->lifted uint[n], t:!R, node_reg:uint[n]
     // Perform second V_c oracle
     [neighbour_anc, err_anc] := V[n](G_or, col, node_reg, neighbour_anc, err_anc);
   }
-  // UNSAFE
-  forget(neighbour_anc=0:uint[n]);
-  forget(err_anc=0:B);
 
-  return node_reg;
+  return (node_reg, neighbour_anc, err_anc);
 }
 
 // Making calls to quantum walk a number of times
 def BWT[n:!N](const G_or: !N × uint[n] ->lifted uint[n], steps:!N, t:!R, dumpState:!B){
   // Start a in the Entrance state
   node_reg := 1:uint[n];
+  neighbour_anc := 0:uint[n];
+  err_anc := 0:B;
 
   for step in [0..steps){
     print(step + 1);
-    node_reg := Ham[n](G_or, t, node_reg);
+    [node_reg, neighbour_anc, err_anc] := Ham[n](G_or, t, node_reg, neighbour_anc, err_anc);
   }
 
   if dumpState{
@@ -41,5 +43,7 @@ def BWT[n:!N](const G_or: !N × uint[n] ->lifted uint[n], steps:!N, t:!R, dumpSt
   }
 
   node_reg := measure(node_reg);
+  measure(neighbour_anc);
+  measure(err_anc);
   return node_reg;
 }
