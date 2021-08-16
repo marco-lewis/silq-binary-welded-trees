@@ -3,17 +3,17 @@ import utils;
 // Perform the V_c oracle
 // XORs b with v_c(a) and xors r with f_c(a)
 def V[n:!N](
-    const G_or: !N × uint[n] ->lifted uint[n],
+    const G_or: !N x uint[n] ->lifted uint[n],
     const col:!N,
     const node_reg:uint[n],
     neighbour_anc:uint[n],
-    err_anc:B): uint[n] × B
+    err_anc:B): uint[n] x B
 {    
   vc := G_or(col, node_reg);
-  neighbour_anc := xor[n](vc, neighbour_anc);
+  neighbour_anc xorb= vc;
 
   ones := vector(n, 1:!B) as !uint[n];
   f := (vc == ones);
-  err_anc := cnot(f,err_anc);
+  err_anc xorb= f;
   return (neighbour_anc, err_anc);
 }

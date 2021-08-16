@@ -6,13 +6,6 @@ def cexp_z(const t:!R, const r:B, x:B):B{
   return x;
 }
 
-def cnot(const c:B, t:B)mfree:B{
-  if c{
-    t := X(t);
-  }
-  return t;
-}
-
 // Controlled-hadamard
 def cH(const c:B, t:B)mfree:B{
   if c{
@@ -23,7 +16,7 @@ def cH(const c:B, t:B)mfree:B{
 
 // Toffolli gate with 1 control on 1st qubit 
 // and 0 control on 2nd control qubit
-def tof_on_off(const c1:B, const c2:B, t:B):B{
+def tof_on_off(const c1:B, const c2:B, t:B)mfree:B{
     if c1 && !c2{
         t := X(t);
     }
@@ -32,24 +25,10 @@ def tof_on_off(const c1:B, const c2:B, t:B):B{
 
 // W gate for T simulation
 def W(a:B, b:B)mfree{
-  a := cnot(b, a);
-  b := cnot(a, b);
+  a xorb= b;
+  b xorb= a;
   b := cH(a,b);
-  b := cnot(a, b);
-  a := cnot(b, a);
+  b xorb= a;
+  a xorb= b;
   return (a, b);
-}
-
-// Bitwise XOR on a quantum uint
-def xor[n:!N](const a:uint[n], b:uint[n]){
-  for i in [0..n){
-    b[i] := cnot(a[i], b[i]);
-  }
-  return b;
-}
-
-// Modular
-def mod(x:!N, a:!N)lifted{
-    b := x div a;
-    return x - (a * b);
 }

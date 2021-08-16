@@ -8,8 +8,8 @@ bits := 6;
 def main(){
   t := 1/sqrt(2);
 
-  G := λ(color:!N, const node:uint[bits])qfree.{return BWTOracle[bits, depth]([8,25,10,30,12,24,15,27,11,26,13,23,14,28,9,29] coerce !uint[bits]^(2 ^ depth), color, node);};
-  steps := 8;
+  G := λ(color:!N, const node:uint[bits])qfree.{return BWTOracle((8,25,10,30,12,24,15,27,11,26,13,23,14,28,9,29):!uint[bits]^(2 ^ depth), color, node);};
+  steps := 9;
   
   results := vector(2^bits, 0:!N);
   for i in [0..1){

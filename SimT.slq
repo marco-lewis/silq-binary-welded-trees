@@ -1,5 +1,13 @@
 import utils;
 
+def entangleSWAP[n:!N](anc:B,node_reg:uint[n],na:uint[n])mfree{
+    for i in [0..n){
+    [node_reg[i], na[i]] := W(node_reg[i], na[i]);
+    anc := tof_on_off(node_reg[i], na[i], anc);
+  }
+  return (anc,node_reg,na);
+}
+
 // Simulation of T matrix
 // Requires tidying up and return of multiple qubits
 def sim_T[n:!N](
@@ -8,24 +16,13 @@ def sim_T[n:!N](
     neighbour_anc:uint[n], 
     err_anc:B)
   {
-  anc := 0:B;
-
   // Entangle SWAP state
-  for i in [0..n){
-    [node_reg[i], neighbour_anc[i]] := W(node_reg[i], neighbour_anc[i]);
-    anc := tof_on_off(node_reg[i], neighbour_anc[i], anc);
-  }
+  (anc,node_reg,neighbour_anc) := entangleSWAP(0:B,node_reg,neighbour_anc);
   
   // Perform simulation
   anc := cexp_z(t, err_anc, anc);
 
   // Undo entangled SWAP
-  for j in [0..n){
-    i := n - (j + 1);
-    anc := tof_on_off(node_reg[i], neighbour_anc[i], anc);
-    [node_reg[i], neighbour_anc[i]] := W(node_reg[i], neighbour_anc[i]);
-  }
-  
-  forget(anc=0:B);
-  return (node_reg, neighbour_anc, err_anc);
+   (0:B,node_reg,neighbour_anc) := reverse(entangleSWAP[n])(anc,node_reg,neighbour_anc);
+   return (node_reg, neighbour_anc, err_anc);
 }

@@ -11,7 +11,7 @@ import BWTGeneralGraph;
 d = 3;
 
 def Oracle[n:!N](color:!N, node:uint[n]){
-	return BWT[n,d]([4,12,6,14,5,11,7,13] coerce !uint[n]:(2^d), color, node);
+	return BWT[n,d]((4,12,6,14,5,11,7,13):!uint[n]^(2^d), color, node);
 }
 ```
 Note that the weld is a list that requires:
